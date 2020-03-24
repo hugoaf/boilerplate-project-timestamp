@@ -24,6 +24,47 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+// Timestamp project START
+app.get(
+  "/api/timestamp/:date_string?",
+  function(req, res, next) {
+    req.myUnix = null;
+    req.myDate = "Invalid Date";
+
+    console.log("******* start ********", req.params.date_string);
+
+    if (Number(req.params.date_string)) {
+      console.log("unix type");
+      req.myUnix = Number(req.params.date_string);
+    } else if (/\d{4}-\d{2}-\d{2}/.test(req.params.date_string)) {
+      console.log("string type");
+      req.myUnix = Date.parse(req.params.date_string);
+    } else if (typeof req.params.date_string == "undefined") {
+      console.log("empty type");
+      req.myUnix = Date.now();
+    } else {
+      console.log("none type");
+    }
+
+    if (req.myUnix !== null) {
+      req.myDate = new Date(req.myUnix).toUTCString();
+      req.myResponse = {
+        unix: req.myUnix,
+        utc: req.myDate
+      };
+    } else {
+      req.myResponse = { error: "Invalid Date" };
+    }
+
+    console.log("unix", req.myUnix);
+    console.log("date", req.myDate);
+
+    next();
+  },
+  function(req, res) {
+    res.json(req.myResponse);
+  }
+// Timestamp project END
 
 
 // listen for requests :)
